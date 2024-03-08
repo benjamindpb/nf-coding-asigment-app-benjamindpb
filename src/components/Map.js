@@ -3,7 +3,7 @@ import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-load
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiYmVuamFtaW5kcGIiLCJhIjoiY2x0ZmJ4a2NsMG9xbTJwbjlyeTJzdnhscyJ9.3Hcg4PS1aq8o12OLrhdooQ';
 
-const Map = () => {
+const Map = ({ markers }) => {
   const mapContainer = useRef(null);
   const map = useRef(null);
 
@@ -13,9 +13,17 @@ const Map = () => {
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/satellite-v9',
       center: [-70.6465, -33.4946],
-      zoom: 9,
+      zoom: 3,
     });
   });
+
+  useEffect(() => {
+    markers.map((ss) => {
+      return new mapboxgl.Marker().setLngLat(
+        ss.coords.coordinates
+      ).addTo(map.current);
+    });
+  }, [markers]);
 
   return (
     <div className='mt-3'>
