@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Map from './components/Map';
 import { Button, Form, InputGroup } from 'react-bootstrap';
 import api from './services/api';
@@ -19,9 +19,12 @@ export default function App() {
   const [lat, setLat] = useState();
   const [lng, setLng] = useState();
   const [carbon, setCarbon] = useState();
+  const [newSoil, setNewSoil] = useState();
   // fertilization area variables
   const [polygonPointsStr, setPolygonPoints] = useState();
   const [fertilizer, setFertilizer] = useState();
+
+  const [soilSampleMarkers, setSoilSampleMarkers] = useState([]);
 
   const [activityDate, setActivityDate] = useState(new Date());
 
@@ -32,6 +35,11 @@ export default function App() {
         carbonMeasurement: carbon,
         activityDate,
       })
+        .then((res) => {
+          if (res.status === 200) {
+            setNewSoil(res.data.newSoilSample)
+          }
+        })
     }
     if (activity === 'fertilization') {
       await api.post('/activity/fertilization', {
@@ -41,6 +49,15 @@ export default function App() {
       })
     }
   }
+
+  useEffect(() => {
+    const getSoilSamples = async () => {
+      const soilSamples = await api.get('/activity/soil');
+      console.log(soilSamples);
+      setSoilSampleMarkers(soilSamples.data.soilSamples);
+    }
+    getSoilSamples();
+  }, [newSoil]);
 
   return (
     <div className='container-fluid p-2 bg-light'>
@@ -102,7 +119,7 @@ export default function App() {
           <Button variant="secondary" onClick={createActivity}>Create</Button>
         </div>
       </div>
-      <Map />
+      <Map markers={soilSampleMarkers}/>
     </div>
   );
 }
